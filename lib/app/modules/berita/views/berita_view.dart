@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tugasteori1/app/modules/berita/controllers/berita_controller.dart';
 import 'package:tugasteori1/app/modules/berita/views/webview_container.dart';
-import 'package:tugasteori1/app/modules/home/views/home_view.dart';
+import 'package:tugasteori1/app/modules/pemasukan/views/pemasukan_view.dart';
+import 'package:tugasteori1/app/modules/profile/views/profile_view.dart';
+import 'package:tugasteori1/app/modules/statistik/views/statistik_view.dart';
 import 'package:tugasteori1/app/routes/app_routes.dart';
 
 class BeritaView extends StatefulWidget {
@@ -11,51 +13,108 @@ class BeritaView extends StatefulWidget {
 }
 
 class _BeritaViewState extends State<BeritaView> {
-  final BeritaController controller = Get.find();
-
   // Index untuk navigasi antar tab
   int _selectedIndex = 2; // Default adalah tab "Berita"
 
   // Daftar halaman yang sesuai dengan navigasi bar
   final List<Widget> _pages = [
-    HomeView(),       // Tab Home
-    StatistikView(),  // Tab Statistik
-    NewsView(),       // Tab Berita
-    ProfilView(),     // Tab Profil
+    PemasukanMainView(),  // Halaman Pemasukan
+    StatistikMainView(),      // Halaman Statistik
+    BeritaMainView(),       // Halaman Berita
+    ProfileMainView(),         // Halaman Profil
   ];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index; // Update the selected index
-
-      // Navigate to Pemasukan when Home (index 0) is pressed
-      if (index == 0) {
-        Get.toNamed(AppRoutes.pemasukan); // Change this route to your PemasukanView route
-      }
-      if (index == 2) {
-        Get.toNamed(AppRoutes.berita);
-      }
-      // If the "Profil" tab is selected, navigate to ProfilView
-      if (index == 3) {
-        Get.toNamed(AppRoutes.profile);
-      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex, // Kontrol halaman yang ditampilkan
+        children: _pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        // Tab yang aktif
+        onTap: _onItemTapped,
+        // Mengubah tab
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.stacked_bar_chart_rounded),
+            label: 'Statistik',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.newspaper_rounded),
+            label: 'Berita',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_2_rounded),
+            label: 'Profil',
+          ),
+        ],
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        showUnselectedLabels: true,
+        backgroundColor: Colors.white,
+      ),
+    );
+  }
+}
+
+  class BeritaMainView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     Get.lazyPut<BeritaController>(() => BeritaController());
+    final BeritaController controller = Get.find();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Berita',
-          style: TextStyle(color: Colors.white), // Set warna teks menjadi putih
+          style: TextStyle(color: Colors.black), // Set warna teks menjadi putih
         ),
-        backgroundColor: Colors.blue, // Set warna app bar menjadi biru
+        backgroundColor: Colors.grey[200],
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushNamed(context, AppRoutes.pemasukan);
+          },
+        ),
       ),
+      backgroundColor: Colors.grey[200],
       body: Obx(() {
         if (controller.isLoading.value) {
           return Center(child: CircularProgressIndicator());
+        }
+        else if (!controller.isConnected.value) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.wifi_off,
+                  size: 100,
+                  color: Colors.red,
+                ),
+                SizedBox (height: 16),
+                Text(
+                  'Tidak ada koneksi internet',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          );
         } else {
           return ListView.builder(
             itemCount: controller.beritaList.length,
@@ -125,54 +184,6 @@ class _BeritaViewState extends State<BeritaView> {
           );
         }
       }),
-      // Bottom Navigation Bar
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex, // Tab yang aktif
-        onTap: _onItemTapped,         // Mengubah tab
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.stacked_bar_chart_rounded),
-            label: 'Statistik',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.newspaper_rounded),
-            label: 'Berita',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_2_rounded),
-            label: 'Profil',
-          ),
-        ],
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-      ),
     );
-  }
-}
-
-// Simulasi halaman lainnya
-class StatistikView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('Statistik'));
-  }
-}
-
-class NewsView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('Berita'));
-  }
-}
-
-class ProfilView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('Profil'));
   }
 }

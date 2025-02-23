@@ -27,10 +27,15 @@ class _WebViewContainerState extends State<WebViewContainer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detail Berita'),
-        backgroundColor: Colors.blue,
+        title: Text(
+          'Detail Berita',
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.grey[200],
       ),
-      body: WebViewWidget(controller: _controller), // Gunakan WebViewWidget untuk versi 4.10.0
+      body: WebViewWidget(
+          controller: _controller), // Gunakan WebViewWidget untuk versi 4.10.0
     );
   }
 }
+

@@ -20,7 +20,7 @@ plugins {
 
 android {
     namespace = "com.example.tugasteori1"
-    compileSdk = flutter.compileSdkVersion
+    compileSdkVersion 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

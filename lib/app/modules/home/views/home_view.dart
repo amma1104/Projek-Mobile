@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:tugasteori1/app/modules/home/controllers/home_controller.dart';
+import 'package:tugasteori1/app/modules/pemasukan/controllers/pemasukan_controller.dart';
+import 'package:tugasteori1/app/modules/pengeluaran/controllers/pengeluaran_controller.dart';
+import 'package:tugasteori1/app/modules/profile/controllers/profile_controller.dart';
 import 'package:tugasteori1/app/routes/app_routes.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -39,6 +42,7 @@ class HomeView extends GetView<HomeController> {
     AndroidNotificationDetails(
       'your_channel_id',
       'your_channel_name',
+      icon: '@mipmap/atur_duit', // Nama ikon dari folder mipmap
       importance: Importance.max,
       priority: Priority.high,
       showWhen: false,
@@ -59,6 +63,8 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     initializeNotifications(); // Initialize notifications when the widget is built
+    Get.lazyPut<HomeController>(() => HomeController());
+    final HomeController controller = Get.find();
 
     return Scaffold(
       body: Stack(
@@ -76,6 +82,20 @@ class HomeView extends GetView<HomeController> {
               'lib/img.png', // Ensure this path is correct
               height: 500,
               fit: BoxFit.contain,
+            ),
+          ),
+          Positioned(
+            top: 100, // Adjust position above the image
+            left: 0,
+            right: 0,
+            child: Text(
+              "Selamat Tahun Baru 2025!!!",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
           // White container at the bottom
@@ -151,6 +171,28 @@ class HomeView extends GetView<HomeController> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 20),
+                  // "Ayo Mulai" Button
+                  SizedBox(
+                    width: 200,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.toNamed(AppRoutes.tutorial);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        backgroundColor: Colors.blue, // Same blue color as Login and Register
+                      ),
+                      child: Text(
+                        "Ayo Mulai",
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
                 ],
               ),
             ),
@@ -165,6 +207,13 @@ class HomeView extends GetView<HomeController> {
     _emailController.clear();
     _passwordController.clear();
 
+    Get.lazyPut<ProfileController>(() => ProfileController());
+    final ProfileController profileController = Get.find<ProfileController>();
+    Get.lazyPut<PemasukanController>(() => PemasukanController());
+    final PemasukanController masukcontroller = Get.find();
+    Get.lazyPut<PengeluaranController>(() => PengeluaranController());
+    final PengeluaranController keluarcontroller = Get.find();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -174,6 +223,8 @@ class HomeView extends GetView<HomeController> {
       builder: (context) {
         return GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
+        child: Container(
+        color: Colors.white,
           child: Padding(
             padding: EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -190,11 +241,20 @@ class HomeView extends GetView<HomeController> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: "Email",
+                    labelStyle: TextStyle(color: Colors.blue), // Warna teks label
                     hintText: "example@gmail.com",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    prefixIcon: Icon(Icons.email),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.blue, width: 2), // Border saat aktif
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.blue, width: 1), // Border saat tidak aktif
+                    ),
+                    prefixIcon: Icon(Icons.email, color: Colors.blue), // Ikon dengan warna biru
                   ),
                   autofocus: true,
                 ),
@@ -205,11 +265,20 @@ class HomeView extends GetView<HomeController> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: "Password",
+                    labelStyle: TextStyle(color: Colors.blue), // Warna teks label
                     hintText: "Enter your password",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    prefixIcon: Icon(Icons.lock),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.blue, width: 2), // Border saat aktif
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.blue, width: 1), // Border saat tidak aktif
+                    ),
+                    prefixIcon: Icon(Icons.lock, color: Colors.blue), // Ikon dengan warna biru
                   ),
                 ),
                 SizedBox(height: 20),
@@ -230,9 +299,13 @@ class HomeView extends GetView<HomeController> {
                           email: email,
                           password: password,
                         );
+
+
                         Navigator.pop(context);
                         // Show notification when login is successful
                         await showNotification();
+                        await profileController.getUserData();
+
                         Get.toNamed(AppRoutes.pemasukan);
                       } catch (e) {
                         Get.snackbar("Login Failed", e.toString(),
@@ -255,6 +328,7 @@ class HomeView extends GetView<HomeController> {
               ],
             ),
           ),
+        ),
         );
       },
     );
@@ -274,6 +348,8 @@ class HomeView extends GetView<HomeController> {
       builder: (context) {
         return GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
+        child: Container(
+        color: Colors.white,
           child: Padding(
             padding: EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -290,11 +366,20 @@ class HomeView extends GetView<HomeController> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: "Email",
+                    labelStyle: TextStyle(color: Colors.blue), // Warna teks label
                     hintText: "example@gmail.com",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    prefixIcon: Icon(Icons.email),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.blue, width: 2), // Border saat aktif
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.blue, width: 1), // Border saat tidak aktif
+                    ),
+                    prefixIcon: Icon(Icons.email, color: Colors.blue), // Ikon dengan warna biru
                   ),
                   autofocus: true,
                 ),
@@ -305,11 +390,20 @@ class HomeView extends GetView<HomeController> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: "Password",
+                    labelStyle: TextStyle(color: Colors.blue), // Warna teks label
                     hintText: "Enter your password",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    prefixIcon: Icon(Icons.lock),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.blue, width: 2), // Border saat aktif
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.blue, width: 1), // Border saat tidak aktif
+                    ),
+                    prefixIcon: Icon(Icons.lock, color: Colors.blue), // Ikon dengan warna biru
                   ),
                 ),
                 SizedBox(height: 20),
@@ -354,6 +448,7 @@ class HomeView extends GetView<HomeController> {
               ],
             ),
           ),
+        ),
         );
       },
     );
