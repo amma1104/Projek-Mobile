@@ -50,12 +50,13 @@ class PemasukanController extends GetxController {
   }
 
   // Fungsi untuk menambahkan transaksi baru
-  void addTransaction(String name, String date, double amount) {
+  void addTransaction(String name, String date, double amount, String sort) {
     var newTransaction = {
       'name': name,
       'date': date,
       'amount': amount,
       'type': 'masuk',
+      'sort': sort,
     };
 
     // Tambahkan transaksi ke list lokal
@@ -72,7 +73,7 @@ class PemasukanController extends GetxController {
   }
 
   // Fungsi untuk memperbarui transaksi
-  void updateTransaction(int index, String name, String date, double amount) {
+  void updateTransaction(int index, String name, String date, double amount, String sort) {
     var oldAmount = recentTransactions[index]['amount'];
 
     var updatedTransaction = {
@@ -80,6 +81,7 @@ class PemasukanController extends GetxController {
       'date': date,
       'amount': amount,
       'type': 'masuk',
+      'sort': sort,
     };
 
     // Perbarui transaksi di list lokal

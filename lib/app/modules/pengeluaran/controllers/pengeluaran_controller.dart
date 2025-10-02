@@ -55,12 +55,13 @@ class PengeluaranController extends GetxController {
     getUserData(); // Panggil fungsi getUserData saat controller diinisialisasi
 
   }
-  void addTransaction(String name, String date, double amount) {
+  void addTransaction(String name, String date, double amount,String sort) {
     var newTransaction = {
       'name': name,
       'date': date,
       'amount': amount,
       'type': 'keluar',
+      'sort': sort,
     };
 
     // Tambahkan transaksi ke list lokal
@@ -77,7 +78,7 @@ class PengeluaranController extends GetxController {
   }
 
   // Fungsi untuk memperbarui transaksi
-  void updateTransaction(int index, String name, String date, double amount) {
+  void updateTransaction(int index, String name, String date, double amount, String sort) {
     var oldAmount = recentTransactions[index]['amount'];
 
     var updatedTransaction = {
@@ -85,6 +86,7 @@ class PengeluaranController extends GetxController {
       'date': date,
       'amount': amount,
       'type': 'keluar',
+      'sort': sort,
     };
 
     // Perbarui transaksi di list lokal
