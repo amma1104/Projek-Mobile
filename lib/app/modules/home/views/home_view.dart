@@ -290,7 +290,7 @@ class HomeView extends GetView<HomeController> {
                       String email = _emailController.text.trim();
                       String password = _passwordController.text.trim();
                       if (email.isEmpty || password.isEmpty) {
-                        Get.snackbar("Error", "Email and password cannot be empty!",
+                        Get.snackbar("Login Failed", "Email and password cannot be empty!",
                             backgroundColor: Colors.red, colorText: Colors.white);
                         return;
                       }
@@ -308,7 +308,7 @@ class HomeView extends GetView<HomeController> {
 
                         Get.toNamed(AppRoutes.pemasukan);
                       } catch (e) {
-                        Get.snackbar("Login Failed", e.toString(),
+                        Get.snackbar("Login Failed", "Fill your email and password correctly.",
                             backgroundColor: Colors.red, colorText: Colors.white);
                       }
                     },
@@ -415,7 +415,7 @@ class HomeView extends GetView<HomeController> {
                       String email = _emailController.text.trim();
                       String password = _passwordController.text.trim();
                       if (email.isEmpty || password.isEmpty) {
-                        Get.snackbar("Error", "Email and password cannot be empty!",
+                        Get.snackbar("Register Failed", "Email and password cannot be empty!",
                             backgroundColor: Colors.red, colorText: Colors.white);
                         return;
                       }
@@ -425,10 +425,10 @@ class HomeView extends GetView<HomeController> {
                           password: password,
                         );
                         Navigator.pop(context);
-                        Get.snackbar("Register Success", "Account created successfully!",
+                        Get.snackbar("Success", "Account created successfully!",
                             backgroundColor: Colors.green, colorText: Colors.white);
                       } catch (e) {
-                        Get.snackbar("Register Failed", e.toString(),
+                        Get.snackbar("Register Failed", "Fill your email and password correctly.",
                             backgroundColor: Colors.red, colorText: Colors.white);
                       }
                     },

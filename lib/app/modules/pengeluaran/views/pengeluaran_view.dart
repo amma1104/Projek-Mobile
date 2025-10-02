@@ -90,6 +90,17 @@ class PengeluaranMainView extends StatelessWidget {
             Get.toNamed(AppRoutes.home);
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.auto_awesome),
+            color: Colors.yellow,
+            onPressed: () {
+              Get.snackbar("AI", "Fitur Gemini AI diklik!",
+                  backgroundColor: Colors.blueAccent,
+                  colorText: Colors.white);
+            },
+          ),
+        ],
       ),
       backgroundColor: Colors.grey[200],
       body: SingleChildScrollView(
@@ -412,6 +423,7 @@ class PengeluaranMainView extends StatelessWidget {
                               date: transaction['date'],
                               amount: 'Rp. ${transaction['amount']}',
                               index: index, // Pass the index here
+                              sort: transaction['sort'],
                             );
                           }).toList(),
                         );
@@ -466,6 +478,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
+  String? selectedSort;
 
   // Function to show the date picker
   Future<void> _selectDate(BuildContext context) async {
@@ -572,6 +585,40 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
             ),
             SizedBox(height: 20),
 
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: selectedSort,
+                  isExpanded: true,
+                  icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+                  dropdownColor: Colors.grey[100], // warna latar menu dropdown
+                  borderRadius: BorderRadius.circular(10), // border radius menu
+                  items: <String>['Makanan', 'Transport', 'Belanja', 'Lainnya']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedSort = newValue!;
+                    });
+                  },
+                  hint: Text(
+                    'Jenis Pengeluaran',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+
             // Action Buttons
             Row(
               children: [
@@ -579,22 +626,29 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (nameController.text.isEmpty) {
-                        Get.snackbar("Error", "Nama Transaksi tidak boleh kosong",
+                        Get.snackbar("Failed", "Nama Transaksi tidak boleh kosong",
                             backgroundColor: Colors.red, colorText: Colors.white);
                       } else if (dateController.text.isEmpty) {
-                        Get.snackbar("Error", "Tanggal tidak boleh kosong",
+                        Get.snackbar("Failed", "Tanggal tidak boleh kosong",
                             backgroundColor: Colors.red, colorText: Colors.white);
                       } else if (amountController.text.isEmpty) {
-                        Get.snackbar("Error", "Pemasukan tidak boleh kosong",
+                        Get.snackbar("Failed", "Pengeluaran tidak boleh kosong",
+                            backgroundColor: Colors.red, colorText: Colors.white);
+                      } else if (selectedSort == null || selectedSort!.isEmpty) {
+                        Get.snackbar("Failed", "Jenis pengeluaran tidak boleh kosong",
                             backgroundColor: Colors.red, colorText: Colors.white);
                       } else {
                         final name = nameController.text;
                         final date = dateController.text;
                         final amount = double.parse(amountController.text);
 
-                        Get.find<PengeluaranController>()
-                            .addTransaction(name, date, amount);
-                        Get.find<PengeluaranController>().addData(amount);
+                        Get.find<PengeluaranController>().addTransaction(
+                          nameController.text,
+                          dateController.text,
+                          double.parse(amountController.text),
+                          selectedSort!, // jenis pemasukan
+                        );
+                        Get.find<PengeluaranController>().addData(double.parse(amountController.text));
 
                         Navigator.pop(context);
 
@@ -667,6 +721,7 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
   final TextEditingController dateController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
   late double oldAmount; // Store the old transaction amount
+  String? selectedSort;
 
   @override
   void initState() {
@@ -675,6 +730,9 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
     dateController.text = widget.date;
     amountController.text = widget.amount.toString();
     oldAmount = widget.amount; // Set the old amount when editing
+
+    selectedSort = Get.find<PengeluaranController>()
+        .recentTransactions[widget.transactionIndex]['sort'];
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -774,26 +832,63 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                 keyboardType: TextInputType.number,
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 16),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: selectedSort,
+                  isExpanded: true,
+                  icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+                  dropdownColor: Colors.grey[100], // warna latar menu dropdown
+                  borderRadius: BorderRadius.circular(10), // border radius menu
+                  items: <String>['Makanan', 'Transport', 'Belanja', 'Lainnya']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedSort = newValue!;
+                    });
+                  },
+                  hint: Text(
+                    'Jenis Pengeluaran',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
                       if (nameController.text.isEmpty) {
-                        Get.snackbar("Error", "Nama Transaksi tidak boleh kosong",
+                        Get.snackbar("Failed", "Nama Transaksi tidak boleh kosong",
                             backgroundColor: Colors.red, colorText: Colors.white);
                       } else if (dateController.text.isEmpty) {
-                        Get.snackbar("Error", "Tanggal tidak boleh kosong",
+                        Get.snackbar("Failed", "Tanggal tidak boleh kosong",
                             backgroundColor: Colors.red, colorText: Colors.white);
                       } else if (amountController.text.isEmpty) {
-                        Get.snackbar("Error", "Pemasukan tidak boleh kosong",
+                        Get.snackbar("Failed", "Pengeluaran tidak boleh kosong",
+                            backgroundColor: Colors.red, colorText: Colors.white);
+                      } else if (selectedSort == null || selectedSort!.isEmpty) {
+                        Get.snackbar("Failed", "Jenis pengeluaran tidak boleh kosong",
                             backgroundColor: Colors.red, colorText: Colors.white);
                       } else {
                         final updatedTransaction = {
                           'name': nameController.text,
                           'date': dateController.text,
                           'amount': double.parse(amountController.text),
+                          'sort': selectedSort!,
                           'type': Get.find<PengeluaranController>()
                               .recentTransactions[widget.transactionIndex]['type'], // Ambil type lama
                         };
@@ -954,7 +1049,8 @@ class TransactionItem extends StatelessWidget {
   final String name;
   final String date;
   final String amount;
-  final int index; // The index parameter should be passed to uniquely identify each transaction
+  final int index;
+  final String sort;// The index parameter should be passed to uniquely identify each transaction
 
   TransactionItem({
     required this.icon,
@@ -963,6 +1059,7 @@ class TransactionItem extends StatelessWidget {
     required this.date,
     required this.amount,
     required this.index,
+    required this.sort,
   });
 
   @override
@@ -985,7 +1082,7 @@ class TransactionItem extends StatelessWidget {
                 backgroundColor: Colors.grey.shade200,
                 child: Icon(
                   icon,
-                  color: Colors.red, // Warna default untuk ikon
+                  color: color, // gunakan warna properti color
                 ),
               ),
               title: Text(
@@ -995,15 +1092,28 @@ class TransactionItem extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              subtitle: Text(
-                date,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    date,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    sort, // tampilkan jenis pemasukan
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.red, // bisa disesuaikan
+                    ),
+                  ),
+                ],
               ),
               trailing: Text(
-                amount, // Add Rp. prefix for amount
+                amount,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

@@ -391,6 +391,8 @@ class StatistikMainView extends StatelessWidget {
                                   date: transaction['date'],
                                   amount: 'Rp. ${transaction['amount']}',
                                   index: index,
+                                  sort: transaction['sort'],
+                                  type : transaction['type']
                                 );
                               }).toList(),
                             );
@@ -416,6 +418,8 @@ class TransactionItem extends StatelessWidget {
   final String date;
   final String amount;
   final int index; // The index parameter should be passed to uniquely identify each transaction
+  final String sort;
+  final String type;
 
   const TransactionItem({
     required this.icon,
@@ -424,9 +428,20 @@ class TransactionItem extends StatelessWidget {
     required this.date,
     required this.amount,
     required this.index,
+    required this.sort,
+    required this.type,
   });
+
   @override
   Widget build(BuildContext context) {
+    Color sortColor;
+    if (type == 'masuk') {
+      sortColor = Colors.green;
+    } else if (type == 'keluar') {
+      sortColor = Colors.red;
+    } else {
+      sortColor = Colors.blue; // default jika null atau tipe tidak dikenali
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Container(
@@ -440,7 +455,7 @@ class TransactionItem extends StatelessWidget {
             backgroundColor: Colors.grey.shade200,
             child: Icon(
               icon,
-              color: color,
+              color: color, // gunakan warna properti color
             ),
           ),
           title: Text(
@@ -450,12 +465,25 @@ class TransactionItem extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          subtitle: Text(
-            date,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                date,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+              SizedBox(height: 2),
+              Text(
+                sort, // tampilkan jenis pemasukan
+                style: TextStyle(
+                  fontSize: 14,
+                  color: sortColor, // gunakan warna berdasarkan type
+                ),
+              ),
+            ],
           ),
           trailing: Text(
             amount,
