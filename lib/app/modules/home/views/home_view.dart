@@ -294,6 +294,7 @@ class HomeView extends GetView<HomeController> {
                             backgroundColor: Colors.red, colorText: Colors.white);
                         return;
                       }
+                      //hai
                       try {
                         await _auth.signInWithEmailAndPassword(
                           email: email,
