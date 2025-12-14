@@ -1,4 +1,3 @@
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,39 +32,70 @@ class _StatistikaViewState extends State<StatistikaView> {
     });
   }
 
+  Widget _buildIcon(int index, IconData solidIcon, IconData outlineIcon) {
+    return Icon(_selectedIndex == index ? solidIcon : outlineIcon);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       body: IndexedStack(
-        index: _selectedIndex, // Kontrol halaman yang ditampilkan
+        index: _selectedIndex,
         children: _pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex, // Tab yang aktif
-        onTap: _onItemTapped,         // Mengubah tab
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20.0),
+            topRight: Radius.circular(20.0),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.stacked_bar_chart_rounded),
-            label: 'Statistik',
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              spreadRadius: 1,
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20.0),
+            topRight: Radius.circular(20.0),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.newspaper_rounded),
-            label: 'Berita',
+          child: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: _buildIcon(0, Icons.home_rounded, Icons.home_outlined),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(1, Icons.leaderboard_rounded, Icons.leaderboard_outlined),
+                label: 'Statistik',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(2, Icons.article, Icons.article_outlined),
+                label: 'Berita',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(3, Icons.person_rounded, Icons.person_outline),
+                label: 'Profil',
+              ),
+            ],
+            selectedItemColor: Colors.blue.shade700,
+            unselectedItemColor: Colors.blue,
+            showUnselectedLabels: true,
+            backgroundColor: Colors.white,
+            type: BottomNavigationBarType.fixed,
+            elevation: 0,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_2_rounded),
-            label: 'Profil',
-          ),
-        ],
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        backgroundColor: Colors.white,
+        ),
       ),
+      // -----------------------------------------------------------------------------
     );
   }
 }

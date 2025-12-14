@@ -33,6 +33,10 @@ class _PengeluaranViewState extends State<PengeluaranView> {
     });
   }
 
+  Widget _buildIcon(int index, IconData solidIcon, IconData outlineIcon) {
+    return Icon(_selectedIndex == index ? solidIcon : outlineIcon);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,32 +45,58 @@ class _PengeluaranViewState extends State<PengeluaranView> {
         index: _selectedIndex,
         children: _pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20.0),
+            topRight: Radius.circular(20.0),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.stacked_bar_chart_rounded),
-            label: 'Statistik',
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              spreadRadius: 1,
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20.0),
+            topRight: Radius.circular(20.0),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.newspaper_rounded),
-            label: 'Berita',
+          child: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: _buildIcon(0, Icons.home_rounded, Icons.home_outlined),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(1, Icons.leaderboard_rounded, Icons.leaderboard_outlined),
+                label: 'Statistik',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(2, Icons.article, Icons.article_outlined),
+                label: 'Berita',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(3, Icons.person_rounded, Icons.person_outline),
+                label: 'Profil',
+              ),
+            ],
+            selectedItemColor: Colors.blue.shade700,
+            unselectedItemColor: Colors.blue,
+            showUnselectedLabels: true,
+            backgroundColor: Colors.white,
+            type: BottomNavigationBarType.fixed,
+            elevation: 0,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_2_rounded),
-            label: 'Profil',
-          ),
-        ],
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        backgroundColor: Colors.white,
+        ),
       ),
+      // -----------------------------------------------------------------------------
     );
   }
 }
@@ -480,6 +510,8 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final TextEditingController amountController = TextEditingController();
   String? selectedSort;
 
+  final RegExp nameRegex = RegExp(r'^[a-zA-Z0-9 ]+$');
+
   // Function to show the date picker
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -628,6 +660,15 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                       if (nameController.text.isEmpty) {
                         Get.snackbar("Failed", "Nama Transaksi tidak boleh kosong",
                             backgroundColor: Colors.red, colorText: Colors.white);
+                      } else if (nameController.text.length < 5) {
+                        Get.snackbar("Failed", "Nama Transaksi minimal 5 karakter",
+                            backgroundColor: Colors.red, colorText: Colors.white);
+                      } else if (nameController.text.length > 20) {
+                        Get.snackbar("Failed", "Nama Transaksi maksimal 20 karakter",
+                            backgroundColor: Colors.red, colorText: Colors.white);
+                      } else if (!nameRegex.hasMatch(nameController.text)) {
+                        Get.snackbar("Failed", "Nama Transaksi tidak boleh mengandung simbol",
+                            backgroundColor: Colors.red, colorText: Colors.white);
                       } else if (dateController.text.isEmpty) {
                         Get.snackbar("Failed", "Tanggal tidak boleh kosong",
                             backgroundColor: Colors.red, colorText: Colors.white);
@@ -722,6 +763,8 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
   final TextEditingController amountController = TextEditingController();
   late double oldAmount; // Store the old transaction amount
   String? selectedSort;
+
+  final RegExp nameRegex = RegExp(r'^[a-zA-Z0-9 ]+$');
 
   @override
   void initState() {
@@ -873,6 +916,15 @@ class _EditTransactionDialogState extends State<EditTransactionDialog> {
                     onPressed: () {
                       if (nameController.text.isEmpty) {
                         Get.snackbar("Failed", "Nama Transaksi tidak boleh kosong",
+                            backgroundColor: Colors.red, colorText: Colors.white);
+                      } else if (nameController.text.length < 5) {
+                        Get.snackbar("Failed", "Nama Transaksi minimal 5 karakter",
+                            backgroundColor: Colors.red, colorText: Colors.white);
+                      } else if (nameController.text.length > 20) {
+                        Get.snackbar("Failed", "Nama Transaksi maksimal 20 karakter",
+                            backgroundColor: Colors.red, colorText: Colors.white);
+                      } else if (!nameRegex.hasMatch(nameController.text)) {
+                        Get.snackbar("Failed", "Nama Transaksi tidak boleh mengandung simbol",
                             backgroundColor: Colors.red, colorText: Colors.white);
                       } else if (dateController.text.isEmpty) {
                         Get.snackbar("Failed", "Tanggal tidak boleh kosong",
